@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>What are you up for?</h1>
+<ul id="options">
+  {% for topic in current_user.topics %}
+  <li><a href="/topics/{{ topic.urlkey }}">{{ topic.name }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

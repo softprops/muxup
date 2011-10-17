@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>of the topic of {{ topic }}</h1>
+<ul id="options">
+  {% for event in events %}
+  <li><a href="{{ event.event_url }}">{{ event.name }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

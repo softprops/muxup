@@ -1,0 +1,26 @@
+body {
+    padding-top: 60px;
+}
+
+#options {
+    list-style: none;
+    padding:0;
+    margin:0;
+}
+
+#options a { 
+    font-size:60px;
+    padding:.25em;
+    line-height:1em;
+    display:block;
+    text-shadow:0 1px #ccc;
+    color:#fff;
+}
+
+
+#options li:nth-child(6n+1) a { background:#FF18A3; }
+#options li:nth-child(6n+2) a { background:#8AF370; }
+#options li:nth-child(6n+3) a { background:#31FFFF; }
+#options li:nth-child(6n+4) a { background:#DD30FF; }
+#options li:nth-child(6n+5) a { background:#EEFF30; }
+#options li:nth-child(6n+6) a { background:#FF305A; }
