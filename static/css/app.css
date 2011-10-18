@@ -2,6 +2,20 @@ body {
     padding-top: 60px;
 }
 
+.flashes {
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+
+.flashes li {
+  font-size:28px;
+}
+
+.hero-unit h1 {
+  margin:.25em 0;
+}
+
 #options {
     list-style: none;
     padding:0;
@@ -16,7 +30,6 @@ body {
     text-shadow:0 1px #ccc;
     color:#fff;
 }
-
 
 #options li:nth-child(6n+1) a { background:#FF18A3; }
 #options li:nth-child(6n+2) a { background:#8AF370; }

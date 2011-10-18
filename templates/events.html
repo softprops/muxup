@@ -1,9 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-<h1>of the topic of {{ topic }}</h1>
+<h1>On the topic of {{ topic }}</h1>
+<p>Have <a href="{{ url_for('index') }}">other interests</a>?</p>
 <ul id="options">
   {% for event in events %}
-  <li><a href="{{ event.event_url }}">{{ event.name }}</a></li>
+  <li><a href="{{ event.event_url }}">{{ event.name }} on {{ event.time|millidate }} w/ {{ event.group.name }}</a></li>
   {% endfor %}
 </ul>
 {% endblock %}

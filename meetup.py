@@ -62,7 +62,6 @@ def refresh_access_token(refresh_token):
                        'User-Agent': USER_AGENT
                    })
     resp = urlopen(req).read()
-    print resp
     return from_json(resp)
 
 def client(access_token):

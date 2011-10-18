@@ -13,7 +13,7 @@
           <a class="brand" href="/">Muxup</a>
           {% if current_user %}
           <ul class="nav">
-            <li><a href="/signout">Signout as {{ current_user.name }}</a></li>
+            <li><a href="/signout">Signout</a></li>
           </ul>
           {% endif %}
         </div>
@@ -21,6 +21,15 @@
     </div>
     <div class="container">
       <div class="hero-unit">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          <ul class=flashes>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        {% endwith %}
         {% block body %} {% endblock %}
     </div>
   </body>
