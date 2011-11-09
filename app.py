@@ -2,7 +2,7 @@ from flask import (Flask, flash, session, redirect, url_for,
                    escape, render_template, request)
 from datetime import datetime
 from os import getenv
-from json import dumps as to_json, loads as from_json
+from anyjson import dumps as to_json, loads as from_json
 from meetup import (client, url_for_authentication, request_access_token,
                     refresh_access_token, MeetupNotAuthorized, MeetupBadRequest)
 from urllib2 import HTTPError
