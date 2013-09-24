@@ -25,12 +25,13 @@ def events(topic):
     if connected():
         try:
             current_user = mu().current_user()
-            events = mu().open_events({ 'topic': topic, 'page': 10,
-                                    'lat': current_user['lat'],
-                                    'lon': current_user['lon'] })
+            events = mu().open_events({ 'topic': topic,
+                                        'page': 10,
+                                        'lat': current_user['lat'],
+                                        'lon': current_user['lon'] })
             return render_template('events.html', topic = topic,
-                               events = events['results'],
-                               current_user = current_user)
+                                   events = events['results'],
+                                   current_user = current_user)
         except MeetupNotAuthorized:
             try:
                 session['credentials'] = refresh_access_token(session['credentials']['refresh_token'])
