@@ -7,13 +7,13 @@
     <link rel="stylesheet" type="text/css" href="/static/css/app.css" />
   </head>
   <body>
-    <div class="topbar">
-      <div class="fill">
+    <div class="navbar  navbar-fixed-top">
+      <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="/">Muxup</a>
           {% if current_user %}
-          <ul class="nav">
-            <li><a href="/signout">Signout</a></li>
+          <ul class="nav nav-list">
+            <li class="active"><a href="/signout">muxout <i class="icon-eject"></i></a></li>
           </ul>
           {% endif %}
         </div>
