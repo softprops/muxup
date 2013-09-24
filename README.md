@@ -4,6 +4,9 @@ A Meetup API flask example
 
 ## install
 
+   easy_install pip
+   pip install -r requirements.txt
+
 This app depends on [Flask][flask]
 
     easy_install Flask
