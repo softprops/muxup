@@ -2,7 +2,7 @@ from os import getenv
 from urllib import urlencode
 from urllib2 import Request, urlopen, quote, URLError, HTTPError
 from datetime import datetime
-from json import dumps as to_json, loads as from_json
+from anyjson import dumps as to_json, loads as from_json
 
 MU_HOST            = getenv('MU_HOST', 'https://secure.meetup.com')
 AUTHENTICATION_URI = '%s/oauth2/authorize' % MU_HOST
