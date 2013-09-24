@@ -4,12 +4,10 @@ A Meetup API flask example
 
 ## install
 
+This app depends on [Flask][flask] and [requests][requests]
+
    easy_install pip
    pip install -r requirements.txt
-
-This app depends on [Flask][flask]
-
-    easy_install Flask
 
 Before starting the application be sure to export the following environment variables
 
@@ -19,3 +17,4 @@ Before starting the application be sure to export the following environment vari
 
 
 [flask]: http://flask.pocoo.org/
+[requests]: http://docs.python-requests.org/en/latest/

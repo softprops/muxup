@@ -1,8 +1,7 @@
 from os import getenv
-from urllib import urlencode
-from urllib2 import Request, urlopen, quote, URLError, HTTPError
+from urllib2 import quote, URLError, HTTPError
 from datetime import datetime
-from anyjson import dumps as to_json, loads as from_json
+import requests
 
 MU_HOST            = getenv('MU_HOST', 'https://secure.meetup.com')
 AUTHENTICATION_URI = '%s/oauth2/authorize' % MU_HOST
@@ -17,10 +16,13 @@ if not CLIENT_ID or not CLIENT_SECRET: raise Exception(
     'CLIENT_ID and CLIENT_SECRET must be set as env vars'
 )
 
-def url_for_authentication(redirect_uri, response_type='code',
-                           state=str(datetime.now()), scopes=[]):
+def url_for_authentication(
+    redirect_uri,
+    response_type='code',
+    state=str(datetime.now()),
+    scopes=[]):
     ''' return the configured uri for
-        acquireing user authorization for oauth2
+        acquiring user authorization for oauth2
     '''
     uri = "%s?client_id=%s&response_type=%s&state=%s&redirect_uri=%s" % (
         AUTHENTICATION_URI,
@@ -34,35 +36,26 @@ def request_access_token(code, redirect_uri):
     ''' make a request for an access token given
         an access grant
     '''
-    req = Request(TOKEN_URI,
-                  data = urlencode({
-                      'client_id': CLIENT_ID,
-                      'client_secret': CLIENT_SECRET,
-                      'grant_type': 'authorization_code',
-                      'code': code,
-                      'redirect_uri': redirect_uri }),
-                  headers = {
-                      'User-Agent' : USER_AGENT
-                  })
-    resp = urlopen(req).read()
-    return from_json(resp)
+    resp = requests.post(TOKEN_URI,
+                         data = { 'client_id': CLIENT_ID,
+                                  'client_secret': CLIENT_SECRET,
+                                  'grant_type': 'authorization_code',
+                                  'code': code,
+                                  'redirect_uri': redirect_uri },
+                         headers = { 'User-Agent' : USER_AGENT }).json()
+    return resp
 
 def refresh_access_token(refresh_token):
     ''' request a new set of oauth2 credentials given
         a previously acquired refresh_token
     '''
-    req = Request(TOKEN_URI,
-                  data = urlencode({
-                      'client_id': CLIENT_ID,
-                      'client_secret': CLIENT_SECRET,
-                      'grant_type': 'refresh_token',
-                      'refresh_token': refresh_token,
-                   }),
-                   headers = {
-                       'User-Agent': USER_AGENT
-                   })
-    resp = urlopen(req).read()
-    return from_json(resp)
+    resp = requests.post(TOKEN_URI,
+                         data = { 'client_id': CLIENT_ID,
+                                  'client_secret': CLIENT_SECRET,
+                                  'grant_type': 'refresh_token',
+                                  'refresh_token': refresh_token },
+                         headers = { 'User-Agent': USER_AGENT }).json()
+    return resp
 
 def client(access_token):
     ''' returns a new configured meetup api client
@@ -85,22 +78,19 @@ class Client():
     ''' rest client for api.meetup.com
     '''
   
-    def __init__(self, host, access_token, encoding = 'ISO-8859-1'):
+    def __init__(self, host, access_token):
         self.host = host
         self.access_token = access_token
-        self.encoding = encoding
 
-    def with_access(self, params):
-        return dict(params.items() + { 'access_token': self.access_token }.items())
+    def url(self, path):
+        return "%s%s" % (self.host, path)
 
     def client_headers(self):
-        return { 'User-Agent': USER_AGENT }
+        return { 'User-Agent': USER_AGENT, 'Authorization': 'Bearer %s' % self.access_token }
 
     def get(self, path, params = {}):
         try:
-            url = "%s%s?%s" % (self.host, path, urlencode(self.with_access(params)))
-            print url
-            return from_json(urlopen(Request(url, headers = self.client_headers())).read(), encoding = self.encoding)
+            return requests.get(self.url(path), params = params, headers = self.client_headers()).json()
         except HTTPError, e:
             if 401 == e.code: raise MeetupNotAuthorized(e.read())
             if 400 == e.code: raise MeetupBadRequest(e.read())
@@ -111,10 +101,7 @@ class Client():
 
     def post(self, path, params = {}):
         try:
-            url = "%s%s" % (self.host, path)
-            return from_json(urlopen(Request(url,
-                             data = urlencode(self.with_access(params)),
-                             headers = self.client_headers())).read(), encoding = self.encoding)
+            return requests.post(self.url(path), data = params, headers = self.client_headers()).json()
         except HTTPError, e:
             if 401 == e.code: raise MeetupNotAuthorized(e.read())
             if 400 == e.code: raise MeetupBadRequest(e.read())
