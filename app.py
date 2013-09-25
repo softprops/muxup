@@ -1,5 +1,5 @@
 from flask import (Flask, flash, session, redirect, url_for,
-                   escape, render_template, request)
+                   render_template, request)
 from datetime import datetime
 from os import getenv
 from meetup import (client, url_for_authentication, request_access_token,
@@ -14,13 +14,25 @@ def index():
         are you or are you not oauthenticated?
     '''
     if connected():
-        return render_template('connected.html',
-                               current_user = mu().current_user())
+        try:
+            return render_template('connected.html',
+                                   current_user = mu().current_user())
+        except MeetupNotAuthorized, e:
+            try:
+                session['credentials'] = refresh_access_token(session['credentials']['refresh_token'])
+                index()
+            except MeetupNotAuthorized, e:
+                empty_credentials()
+                flash('User revoked access')
+                return redirect(url_for('index'))
     else:
         return render_template('index.html')
 
 @app.route('/topics/<topic>')
 def events(topic):
+    ''' fetch of a list of 10 events by topic <topic>
+        happening around me
+    '''
     if connected():
         try:
             current_user = mu().current_user()
@@ -31,7 +43,7 @@ def events(topic):
             return render_template('events.html', topic = topic,
                                    events = events['results'],
                                    current_user = current_user)
-        except MeetupNotAuthorized:
+        except MeetupNotAuthorized, e:
             try:
                 session['credentials'] = refresh_access_token(session['credentials']['refresh_token'])
                 events(topic)
@@ -59,7 +71,7 @@ def connect():
 @app.route('/auth')
 def auth():
     ''' meetup.com will redirect the user here after
-        they were prompted for authentication.
+        user was prompted for authentication.
         if the user authorized this application, we
         should request an access token
     '''
@@ -68,7 +80,8 @@ def auth():
     else:
         code, state = map(lambda k: request.args.get(k), ['code', 'state'])
         session['credentials'] = request_access_token(
-            code, url_for('auth', _external = True))
+            code,
+            url_for('auth', _external = True))
         flash('Get muxin.')
         return redirect(url_for('index'))
 

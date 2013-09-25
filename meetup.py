@@ -54,8 +54,10 @@ def refresh_access_token(refresh_token):
                                   'client_secret': CLIENT_SECRET,
                                   'grant_type': 'refresh_token',
                                   'refresh_token': refresh_token },
-                         headers = { 'User-Agent': USER_AGENT }).json()
-    return resp
+                         headers = { 'User-Agent': USER_AGENT })
+    if 400 == resp.status_code:
+        raise MeetupNotAuthorized(resp.json())
+    return resp.json()
 
 def client(access_token):
     ''' returns a new configured meetup api client
@@ -77,7 +79,7 @@ class MeetupBadRequest(Exception):
 class Client():
     ''' rest client for api.meetup.com
     '''
-  
+
     def __init__(self, host, access_token):
         self.host = host
         self.access_token = access_token
@@ -90,7 +92,12 @@ class Client():
 
     def get(self, path, params = {}):
         try:
-            return requests.get(self.url(path), params = params, headers = self.client_headers()).json()
+            resp = requests.get(self.url(path), params = params, headers = self.client_headers())
+            if 401 == resp.status_code:
+                raise MeetupNotAuthorized(resp.json())
+            if 400 == resp.status_code:
+                raise MeetupBadRequest(resp.json())
+            return resp.json()
         except HTTPError, e:
             if 401 == e.code: raise MeetupNotAuthorized(e.read())
             if 400 == e.code: raise MeetupBadRequest(e.read())
@@ -101,7 +108,12 @@ class Client():
 
     def post(self, path, params = {}):
         try:
-            return requests.post(self.url(path), data = params, headers = self.client_headers()).json()
+            resp = requests.post(self.url(path), data = params, headers = self.client_headers())
+            if 401 == resp.status_code:
+                raise MeetupNotAuthorized(resp.json())
+            if 400 == resp.status_code:
+                raise MeetupBadRequest(resp.json())
+            return resp.json()
         except HTTPError, e:
             if 401 == e.code: raise MeetupNotAuthorized(e.read())
             if 400 == e.code: raise MeetupBadRequest(e.read())
