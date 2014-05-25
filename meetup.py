@@ -64,17 +64,27 @@ def client(access_token):
     '''
     return Client(API_HOST, access_token)
 
+
 class MeetupNotAuthorized(Exception):
     ''' Represents an exception thrown when an api request
-        is rejected due to invalid authorization
+        is rejected due to invalid authorization HTTP 401 Unauthorized
     '''
     pass
 
+
 class MeetupBadRequest(Exception):
     ''' Represents an exception throw when an api request
-        is rejected for being malformed
+        is rejected for being malformed HTTP 400 Bad Request
     '''
     pass
+
+
+class MeetupInternalServerError(Exception):
+    ''' Represents an exception throw when Meetups server messed up.
+        HTTP 500 Internal Server Error
+    '''
+    pass
+
 
 class Client():
     ''' rest client for api.meetup.com
@@ -97,10 +107,13 @@ class Client():
                 raise MeetupNotAuthorized(resp.json())
             if 400 == resp.status_code:
                 raise MeetupBadRequest(resp.json())
+            if 500 == resp.status_code:
+                raise MeetupInternalServerError(resp.json())
             return resp.json()
         except HTTPError, e:
             if 401 == e.code: raise MeetupNotAuthorized(e.read())
             if 400 == e.code: raise MeetupBadRequest(e.read())
+            if 500 == e.code: raise MeetupInternalServerError(e.read())
         except URLError, e:
             raise MeetupBadRequest("malformed url %s" % e.reason)
         except Exception, e:
@@ -113,10 +126,13 @@ class Client():
                 raise MeetupNotAuthorized(resp.json())
             if 400 == resp.status_code:
                 raise MeetupBadRequest(resp.json())
+            if 500 == resp.status_code:
+                raise MeetupInternalServerError(resp.json())
             return resp.json()
         except HTTPError, e:
             if 401 == e.code: raise MeetupNotAuthorized(e.read())
             if 400 == e.code: raise MeetupBadRequest(e.read())
+            if 500 == e.code: raise MeetupInternalServerError(e.read())
             raise e
         except URLError, e:
             raise MeetupBadRequest("malformed url %s" % e.reason)
