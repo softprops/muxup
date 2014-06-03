@@ -86,6 +86,13 @@ class MeetupInternalServerError(Exception):
     pass
 
 
+class MeetupThrottleError(Exception):
+    ''' Too many requests per unit time.
+        HTTP 429 Throttled / Blocked
+    '''
+    pass
+
+
 class Client():
     ''' rest client for api.meetup.com
     '''
@@ -109,11 +116,18 @@ class Client():
                 raise MeetupBadRequest(resp.json())
             if 500 == resp.status_code:
                 raise MeetupInternalServerError(resp.json())
+            if 429 == resp.status_code:
+                raise MeetupThrottleError(resp.json())
             return resp.json()
         except HTTPError, e:
-            if 401 == e.code: raise MeetupNotAuthorized(e.read())
-            if 400 == e.code: raise MeetupBadRequest(e.read())
-            if 500 == e.code: raise MeetupInternalServerError(e.read())
+            if 401 == e.code: 
+                raise MeetupNotAuthorized(e.read())
+            if 400 == e.code: 
+                raise MeetupBadRequest(e.read())
+            if 500 == e.code: 
+                raise MeetupInternalServerError(e.read())
+            if 429 == e.code:
+                raise MeetupThrottleError(e.read())
         except URLError, e:
             raise MeetupBadRequest("malformed url %s" % e.reason)
         except Exception, e:
@@ -130,9 +144,12 @@ class Client():
                 raise MeetupInternalServerError(resp.json())
             return resp.json()
         except HTTPError, e:
-            if 401 == e.code: raise MeetupNotAuthorized(e.read())
-            if 400 == e.code: raise MeetupBadRequest(e.read())
-            if 500 == e.code: raise MeetupInternalServerError(e.read())
+            if 401 == e.code: 
+                raise MeetupNotAuthorized(e.read())
+            if 400 == e.code: 
+                raise MeetupBadRequest(e.read())
+            if 500 == e.code: 
+                raise MeetupInternalServerError(e.read())
             raise e
         except URLError, e:
             raise MeetupBadRequest("malformed url %s" % e.reason)
